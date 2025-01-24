@@ -1,0 +1,146 @@
+# taskmaster.py
+
+import sys
+import os
+import json
+from datetime import datetime, timedelta
+
+tasks = []
+
+class Task:
+    def __init__(self, description, due_date, category):
+        self.description = description
+        self.due_date = due_date
+        self.category = category
+        self.completed = False
+
+    def __str__(self):
+        status = "Done" if self.completed else "Not Done"
+        return f"{self.description} | Due: {self.due_date} | Category: {self.category} | Status: {status}"
+
+def parse_natural_language(input_str):
+    # Simplified parser for demonstration purposes
+    if "tomorrow" in input_str:
+        due_date = datetime.now() + timedelta(days=1)
+    else:
+        due_date = datetime.now() + timedelta(days=2)
+    
+    if "buy" in input_str:
+        category = "personal"
+    else:
+        category = "work"
+    
+    return Task(description=input_str, due_date=due_date, category=category)
+
+def add_task(description):
+    task = parse_natural_language(description)
+    tasks.append(task)
+    print(f"Task added: {task}")
+
+def list_tasks():
+    for i, task in enumerate(tasks):
+        print(f"{i}. {task}")
+
+def complete_task(index):
+    if 0 <= index < len(tasks):
+        tasks[index].completed = True
+        print(f"Task completed: {tasks[index]}")
+    else:
+        print("Invalid task index")
+
+def edit_task(index, description):
+    if 0 <= index < len(tasks):
+        task = parse_natural_language(description)
+        tasks[index].description = task.description
+        tasks[index].due_date = task.due_date
+        tasks[index].category = task.category
+        print(f"Task edited: {tasks[index]}")
+    else:
+        print("Invalid task index")
+
+def delete_task(index):
+    if 0 <= index < len(tasks):
+        removed_task = tasks.pop(index)
+        print(f"Task deleted: {removed_task}")
+    else:
+        print("Invalid task index")
+
+def search_tasks(keyword):
+    for i, task in enumerate(tasks):
+        if keyword.lower() in task.description.lower():
+            print(f"{i}. {task}")
+
+def save_tasks(filename="tasks.json"):
+    with open(filename, "w") as file:
+        json_tasks = [task.__dict__ for task in tasks]
+        json.dump(json_tasks, file)
+    print(f"Tasks saved to {filename}")
+
+def load_tasks(filename="tasks.json"):
+    global tasks
+    if os.path.exists(filename):
+        with open(filename, "r") as file:
+            json_tasks = json.load(file)
+            tasks = [Task(**task) for task in json_tasks]
+        print(f"Tasks loaded from {filename}")
+    else:
+        print(f"No saved tasks found in {filename}")
+
+def show_help():
+    print("TaskMaster - Command Line Task Management Tool")
+    print("Commands:")
+    print("  add <task_description>        - Add a new task")
+    print("  list                         - List all tasks")
+    print("  complete <task_index>        - Mark a task as completed")
+    print("  edit <task_index> <new_desc> - Edit an existing task")
+    print("  delete <task_index>          - Delete a task")
+    print("  search <keyword>             - Search tasks by keyword")
+    print("  save                         - Save tasks to a file")
+    print("  load                         - Load tasks from a file")
+    print("  help                         - Show this help message")
+
+def main():
+    load_tasks()  # Load tasks on startup
+    if len(sys.argv) < 2:
+        show_help()
+        return
+
+    command = sys.argv[1]
+
+    if command == "add":
+        description = " ".join(sys.argv[2:])
+        add_task(description)
+    elif command == "list":
+        list_tasks()
+    elif command == "complete":
+        try:
+            index = int(sys.argv[2])
+            complete_task(index)
+        except ValueError:
+            print("Invalid task index")
+    elif command == "edit":
+        try:
+            index = int(sys.argv[2])
+            description = " ".join(sys.argv[3:])
+            edit_task(index, description)
+        except ValueError:
+            print("Invalid task index")
+    elif command == "delete":
+        try:
+            index = int(sys.argv[2])
+            delete_task(index)
+        except ValueError:
+            print("Invalid task index")
+    elif command == "search":
+        keyword = " ".join(sys.argv[2:])
+        search_tasks(keyword)
+    elif command == "save":
+        save_tasks()
+    elif command == "load":
+        load_tasks()
+    else:
+        show_help()
+    save_tasks()  # Save tasks on exit
+
+if __name__ == "__main__":
+    main()
