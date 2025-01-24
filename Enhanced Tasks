@@ -1,0 +1,11 @@
+To run the enhanced TaskMaster, use the following commands:
+
+Add a task: python taskmaster.py add Remind me to buy groceries tomorrow at 5 PM
+List tasks: python taskmaster.py list
+Complete a task: python taskmaster.py complete 0
+Edit a task: python taskmaster.py edit 0 Buy vegetables instead
+Delete a task: python taskmaster.py delete 0
+Search tasks: python taskmaster.py search buy
+Save tasks: python taskmaster.py save
+Load tasks: python taskmaster.py load
+Show help: python taskmaster.py help
